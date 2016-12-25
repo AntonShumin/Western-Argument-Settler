@@ -115,11 +115,16 @@ public class script_gun : MonoBehaviour {
 
         if(dragging)
         {
+            //set basic vars
             Vector3 mouse = Input.mousePosition;
-            //Debug.Log(mouse);
-            mouse.z = 1f; // the distance from the camera is 500
+            mouse.z = 1f; 
             Vector3 vec = Camera.main.ScreenToWorldPoint(mouse);
-            Debug.Log(vec);
+
+            Vector3 difference = mouse - drag_last_position;
+            Debug.Log(difference);
+            drag_last_position = mouse;
+
+            //Move
             transform.position = vec;
         }
 
