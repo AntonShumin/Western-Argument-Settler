@@ -11,6 +11,8 @@ public class script_gun : MonoBehaviour {
 
     private bool dragging = false;
     private Vector3 drag_last_position = new Vector3(0,0,0);
+    private Vector3 drag_Last_direction = new Vector3(0, 0, 0);
+    private Vector3 drag_distance = new Vector3(0, 0, 0);
 
 
 	// Use this for initialization
@@ -24,44 +26,8 @@ public class script_gun : MonoBehaviour {
 	void Update () {
 
         mouse();
+        rotate_motion();
 
-            if (rotating)
-            {
-
-                if (Mathf.Abs(rotating_values[0]) + Mathf.Abs(rotating_values[1]) + Mathf.Abs(rotating_values[2]) > 0)
-                {
-                    //preset vars
-                    float rotation_left = 0;
-                    float actual_rotation_degrees = 0;
-
-                    //spin
-                    for (int i =  0; i < 3; i++)
-                    {
-                        if (Mathf.Abs(rotating_values[i]) > 0)
-                        {
-                            //set vars
-                            actual_rotation_degrees = rotating_values[i + 3] * Time.deltaTime;
-                            rotation_left = rotating_values[i];
-                            if(Mathf.Abs(rotation_left) > Mathf.Abs(actual_rotation_degrees)) {
-                                rotating_values[i] -= actual_rotation_degrees;
-                            } else
-                            {
-                                actual_rotation_degrees = rotation_left;
-                                rotating_values[i] = 0;
-                            }
-
-                            rotation_left = rotating_values[i];
-                            transform.Rotate(rotation_vector[i] * actual_rotation_degrees, Space.Self);
-                        }
-                    }
-                
-                } else
-                {
-                    rotating = false;
-                }
-            }
-
-        
 	}
 
     public void rotate(float x, float y, float z, float time)
@@ -99,39 +65,55 @@ public class script_gun : MonoBehaviour {
 
     private void mouse()
     {
+        //Preset vars
+        Vector3 drag_current_position = Input.mousePosition;
+
+        //PRESS MOUSE BUTTON
         if (Input.GetMouseButtonDown(0))
         {
-            action_count++;
-            if (action_count == 1)
+            
+            //
+            dragging = true;
+
+            //
+            if (action_count == 0)
             {
                 rotate(-270, 0, 0, 0.15f);
+                drag_last_position = drag_current_position;
+                action_count++;
             }
-            else if (action_count > 1)
+            else if (action_count == 1)
             {
                 rotate(360, 0, 0, 0.2f);
             }
-            dragging = true;
+
+            
+        } else if(Input.GetMouseButtonUp(0)) { 
+        //RELEASE DRAG
+            dragging = false;
         }
 
-        if(dragging)
+        //DRAG
+        if (dragging)
         {
             //set basic vars
-            Vector3 mouse = Input.mousePosition;
-            mouse.z = 1f; 
-            Vector3 vec = Camera.main.ScreenToWorldPoint(mouse);
+            drag_current_position.z = 1f; 
+            Vector3 vec = Camera.main.ScreenToWorldPoint(drag_current_position);
 
-            Vector3 difference = mouse - drag_last_position;
-            Debug.Log(difference);
-            drag_last_position = mouse;
+            Vector3 difference = drag_current_position - drag_last_position;
+            Debug.Log(difference.y / Time.deltaTime);
+
+            //Vertical calc
+
+
+
+            drag_last_position = drag_current_position;
 
             //Move
             transform.position = vec;
         }
 
-        if (Input.GetMouseButtonUp(0))
-        {
-            dragging = false;
-        }
+        
         
 
         /*
@@ -145,8 +127,49 @@ public class script_gun : MonoBehaviour {
 
     */
 
+    }
 
+    private void rotate_motion ()
+    {
 
+        if (rotating)
+        {
+
+            if (Mathf.Abs(rotating_values[0]) + Mathf.Abs(rotating_values[1]) + Mathf.Abs(rotating_values[2]) > 0)
+            {
+                //preset vars
+                float rotation_left = 0;
+                float actual_rotation_degrees = 0;
+
+                //spin
+                for (int i = 0; i < 3; i++)
+                {
+                    if (Mathf.Abs(rotating_values[i]) > 0)
+                    {
+                        //set vars
+                        actual_rotation_degrees = rotating_values[i + 3] * Time.deltaTime;
+                        rotation_left = rotating_values[i];
+                        if (Mathf.Abs(rotation_left) > Mathf.Abs(actual_rotation_degrees))
+                        {
+                            rotating_values[i] -= actual_rotation_degrees;
+                        }
+                        else
+                        {
+                            actual_rotation_degrees = rotation_left;
+                            rotating_values[i] = 0;
+                        }
+
+                        rotation_left = rotating_values[i];
+                        transform.Rotate(rotation_vector[i] * actual_rotation_degrees, Space.Self);
+                    }
+                }
+
+            }
+            else
+            {
+                rotating = false;
+            }
+        }
 
     }
 }
