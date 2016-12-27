@@ -101,9 +101,32 @@ public class script_gun : MonoBehaviour {
             Vector3 vec = Camera.main.ScreenToWorldPoint(drag_current_position);
 
             Vector3 difference = drag_current_position - drag_last_position;
-            Debug.Log(difference.y / Time.deltaTime);
 
-            //Vertical calc
+            if(difference.y != 0)
+            {
+                //DIRECTION CALCULATION
+                float sign_x = Mathf.Sign(difference.x);
+                float sign_y = Mathf.Sign(difference.y);
+                if (drag_Last_direction.y != sign_y)
+                {
+                    //save direction
+                    drag_distance = Vector3.zero;
+                    drag_Last_direction.y = sign_y;
+
+
+                    //calculate drag velocity
+                    float drag_velocity = drag_Last_direction.y / Time.deltaTime;
+                    Debug.Log(drag_velocity);
+
+                    rotate(360*drag_Last_direction.y, 0, 0, 0.2f);
+                } else
+                {
+                    //save total drag distance in one direction
+                    drag_distance.y += difference.y;
+                }
+            }
+            
+            
 
 
 
