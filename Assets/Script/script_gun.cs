@@ -14,11 +14,6 @@ public class script_gun : MonoBehaviour {
     private Vector3 drag_Last_direction = new Vector3(0, 0, 0);
     private Vector3 drag_distance = new Vector3(0, 0, 0);
 
-    //Drag speed v2
-    private float drag_screen_last_y = 0;
-    private float drag_screen_delta_y = 0;
-
-
 
 	// Use this for initialization
 	void Start () {
@@ -110,9 +105,19 @@ public class script_gun : MonoBehaviour {
             Vector3 difference = drag_current_position - drag_last_position;
 
             //velocity y
-            float drag_screen_current_y = drag_current_position.y / Screen.height;
-            float drag_screen_last_y = drag_last_position.y / Screen.height;
-            float drag_velocity_y = Mathf.Abs((drag_screen_last_y - drag_screen_current_y) / Time.deltaTime);
+            Vector3 drag_screen_current = new Vector3(0,0,0);
+            drag_screen_current.y = drag_current_position.y / Screen.height;
+            drag_screen_current.x = drag_current_position.x / Screen.width;
+            //--
+            Vector3 drag_screen_last = new Vector3(0, 0, 0);
+            drag_screen_last.y = drag_last_position.y / Screen.height;
+            drag_screen_last.x = drag_last_position.x / Screen.width;
+            //--
+            float magnitude_current = drag_screen_current.magnitude;
+            float magnitude_last = drag_screen_last.magnitude;
+            //-
+            float drag_velocity = Mathf.Abs((magnitude_current - magnitude_last) / Time.deltaTime);
+            
 
 
             if (difference.y != 0)
@@ -122,19 +127,20 @@ public class script_gun : MonoBehaviour {
                 float sign_y = Mathf.Sign(difference.y);
                 if (drag_Last_direction.y != sign_y)
                 {
-
+                    
                     //save direction
                     drag_distance = Vector3.zero;
                     drag_Last_direction.y = sign_y;
-                    Debug.Log(drag_velocity_y);
-                    if (drag_velocity_y > 0.5)
+
+                    if (drag_velocity > 0.3)
                     {
+                        Debug.Log(drag_velocity);
                         rotate(360 * sign_y * -1f, 0, 0, 0.2f);
                     }
 
                 } else
                 {
-
+                    
                     //save total drag distance in one direction
                     drag_distance.y += difference.y;
 
