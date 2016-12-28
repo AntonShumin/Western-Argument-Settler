@@ -14,6 +14,11 @@ public class script_gun : MonoBehaviour {
     private Vector3 drag_Last_direction = new Vector3(0, 0, 0);
     private Vector3 drag_distance = new Vector3(0, 0, 0);
 
+    //Drag speed v2
+    private float drag_screen_last_y = 0;
+    private float drag_screen_delta_y = 0;
+
+
 
 	// Use this for initialization
 	void Start () {
@@ -68,6 +73,8 @@ public class script_gun : MonoBehaviour {
         //Preset vars
         Vector3 drag_current_position = Input.mousePosition;
 
+        
+
         //PRESS MOUSE BUTTON
         if (Input.GetMouseButtonDown(0))
         {
@@ -84,7 +91,8 @@ public class script_gun : MonoBehaviour {
             }
             else if (action_count == 1)
             {
-                rotate(360, 0, 0, 0.2f);
+                
+                
             }
 
             
@@ -99,30 +107,38 @@ public class script_gun : MonoBehaviour {
             //set basic vars
             drag_current_position.z = 1f; 
             Vector3 vec = Camera.main.ScreenToWorldPoint(drag_current_position);
-
             Vector3 difference = drag_current_position - drag_last_position;
 
-            if(difference.y != 0)
+            //velocity y
+            float drag_screen_current_y = drag_current_position.y / Screen.height;
+            float drag_screen_last_y = drag_last_position.y / Screen.height;
+            float drag_velocity_y = Mathf.Abs((drag_screen_last_y - drag_screen_current_y) / Time.deltaTime);
+
+
+            if (difference.y != 0)
             {
                 //DIRECTION CALCULATION
                 float sign_x = Mathf.Sign(difference.x);
                 float sign_y = Mathf.Sign(difference.y);
                 if (drag_Last_direction.y != sign_y)
                 {
+
                     //save direction
                     drag_distance = Vector3.zero;
                     drag_Last_direction.y = sign_y;
+                    Debug.Log(drag_velocity_y);
+                    if (drag_velocity_y > 0.5)
+                    {
+                        rotate(360 * sign_y * -1f, 0, 0, 0.2f);
+                    }
 
-
-                    //calculate drag velocity
-                    float drag_velocity = drag_Last_direction.y / Time.deltaTime;
-                    Debug.Log(drag_velocity);
-
-                    rotate(360*drag_Last_direction.y, 0, 0, 0.2f);
                 } else
                 {
+
                     //save total drag distance in one direction
                     drag_distance.y += difference.y;
+
+                   
                 }
             }
             
